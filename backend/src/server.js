@@ -11,14 +11,21 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "https://stockflow-visionwexa-assesment.vercel.app",
-  "https://stockflow-visionwexa-assesment-4mje394cm-shaikakrams-projects.vercel.app",
 ];
 
-// CORS must be registered before your API routes
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const isAllowedPreview =
+        /^https:\/\/stockflow-visionwexa-assesment-[a-z0-9-]+-shaikakrams-projects\.vercel\.app$/.test(
+          origin
+        );
+
+      if (allowedOrigins.includes(origin) || isAllowedPreview) {
         return callback(null, true);
       }
 
@@ -29,7 +36,6 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
 
 
 // Parse JSON request bodies
