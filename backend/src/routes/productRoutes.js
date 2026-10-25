@@ -4,9 +4,16 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+// Protect every product endpoint.
 router.use(authMiddleware);
 
-// Validate product input
+// Validate numeric product IDs.
+// Assumes Product.id uses a positive integer.
+function isValidProductId(id) {
+  return /^\d+$/.test(id) && Number(id) > 0;
+}
+
+// Validate product input.
 function validateProduct(body, isUpdate = false) {
   const errors = [];
 
@@ -45,16 +52,18 @@ function validateProduct(body, isUpdate = false) {
     }
   }
 
-  if (body.description !== undefined &&
-      body.description !== null &&
-      typeof body.description !== "string") {
+  if (
+    body.description !== undefined &&
+    body.description !== null &&
+    typeof body.description !== "string"
+  ) {
     errors.push("Description must be a string or null.");
   }
 
   return errors;
 }
 
-// POST /api/products - Create a product
+// POST /api/products - Create a product.
 router.post("/", async (req, res) => {
   const errors = validateProduct(req.body);
 
@@ -69,6 +78,8 @@ router.post("/", async (req, res) => {
       description: req.body.description ?? null,
       quantity: req.body.quantity,
       price: req.body.price,
+
+      // Never trust organizationId from the request body.
       organizationId: req.user.organizationId,
     });
 
@@ -97,7 +108,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// GET /api/products - List this organization's products
+// GET /api/products - List this organization's products.
 router.get("/", async (req, res) => {
   try {
     const products = await Product.findAll({
@@ -117,8 +128,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /api/products/:id - Get one product
+// GET /api/products/:id - Get one product.
 router.get("/:id", async (req, res) => {
+  if (!isValidProductId(req.params.id)) {
+    return res.status(400).json({
+      message: "Invalid product ID.",
+    });
+  }
+
   try {
     const product = await Product.findOne({
       where: {
@@ -143,8 +160,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// PUT /api/products/:id - Update a product
+// PUT /api/products/:id - Update a product.
 router.put("/:id", async (req, res) => {
+  if (!isValidProductId(req.params.id)) {
+    return res.status(400).json({
+      message: "Invalid product ID.",
+    });
+  }
+
   const allowedFields = [
     "name",
     "sku",
@@ -157,7 +180,9 @@ router.put("/:id", async (req, res) => {
 
   if (
     suppliedFields.length === 0 ||
-    suppliedFields.some((field) => !allowedFields.includes(field))
+    suppliedFields.some(
+      (field) => !allowedFields.includes(field)
+    )
   ) {
     return res.status(400).json({
       message: "Provide valid product fields to update.",
@@ -222,8 +247,14 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE /api/products/:id - Delete a product
+// DELETE /api/products/:id - Delete a product.
 router.delete("/:id", async (req, res) => {
+  if (!isValidProductId(req.params.id)) {
+    return res.status(400).json({
+      message: "Invalid product ID.",
+    });
+  }
+
   try {
     const product = await Product.findOne({
       where: {
