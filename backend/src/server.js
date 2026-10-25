@@ -10,27 +10,27 @@ const app = express();
 // Allowed frontend origins
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://stockflow-visionwexa-assesment.vercel.app",
   "https://stockflow-visionwexa-assesment-4mje394cm-shaikakrams-projects.vercel.app",
 ];
 
-// CORS configuration
+// CORS must be registered before your API routes
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests without an Origin header, such as server-to-server
-      // requests and health checks.
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      console.warn(`CORS blocked origin: ${origin}`);
-      return callback(new Error("Origin not allowed by CORS"));
+      console.error("Blocked CORS origin:", origin);
+      return callback(null, false);
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: false,
   })
 );
+
+
 
 // Parse JSON request bodies
 app.use(express.json());
