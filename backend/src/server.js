@@ -12,8 +12,9 @@ app.use(
     origin: process.env.CLIENT_URL || "http://localhost:5173",
   })
 );
-
+const authRoutes = require("./routes/authRoutes");
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.json({
