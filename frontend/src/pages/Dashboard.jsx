@@ -158,10 +158,10 @@ const fetchDashboard = async () => {
 
         <div className="sidebar-bottom">
           <div className="sidebar-section-label">SUPPORT</div>
-          <div className="nav-link nav-static">
-            <CircleHelp size={19} />
-            <span>Help & support</span>
-          </div>
+          <Link to="/help" className="nav-link">
+          <Settings size={19} />
+          <span>Help &amp; Support</span>
+          </Link>
           <Link to="/settings" className="nav-link">
           <Settings size={19} />
           <span>Settings</span>

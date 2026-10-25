@@ -14,7 +14,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Settings from "./pages/Settings";
-
+import Help from "./pages/Help";
 function HomeRedirect() {
   const { user } = useAuth();
 
@@ -33,7 +33,9 @@ function AppRoutes() {
        <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/products" element={<Products />} />
+        
         <Route path="/settings" element={<Settings />} />
+        <Route path="/help" element={<Help />} />
       </Route>
 
       <Route path="*" element={<HomeRedirect />} />

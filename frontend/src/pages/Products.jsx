@@ -344,13 +344,19 @@ export default function Products() {
 
         <div className="sidebar-bottom">
           <div className="sidebar-section-label">SUPPORT</div>
-          <div className="nav-link nav-static">
-            <CircleHelp size={19} />
-            <span>Help &amp; support</span>
-          </div>
-          <Link to="/settings" className="nav-link" onClick={() => setMobileMenuOpen(false)}>
-          <Settings size={19} />
-          <span>Settings</span>
+
+          <Link to="/help" className="nav-link" onClick={() => setMobileMenuOpen(false)}
+>
+  <CircleHelp size={19} />
+  <span>Help &amp; Support</span>
+</Link>
+          <Link
+            to="/settings"
+            className="nav-link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <Settings size={19} />
+            <span>Settings</span>
           </Link>
 
           <div className="sidebar-organization">
