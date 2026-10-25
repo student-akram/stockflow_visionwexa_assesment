@@ -7,36 +7,74 @@ const sequelize = require("./config/database");
 
 const app = express();
 
+// Allowed frontend origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://stockflow-visionwexa-assesment-4mje394cm-shaikakrams-projects.vercel.app",
+];
+
+// CORS configuration
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://stockflow-visionwexa-assesment-4mj394cm-shaikakrams-projects.vercel.app",
-    ],
+    origin: (origin, callback) => {
+      // Allow requests without an Origin header, such as server-to-server
+      // requests and health checks.
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.warn(`CORS blocked origin: ${origin}`);
+      return callback(new Error("Origin not allowed by CORS"));
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: false,
   })
 );
+
+// Parse JSON request bodies
+app.use(express.json());
+
+// Routes
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const organizationRoutes = require("./routes/organizationRoutes");
-app.use(express.json());
+
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/organization", organizationRoutes);
 
+// Root endpoint
 app.get("/", (req, res) => {
   res.json({
     message: "StockFlow API is running",
   });
 });
 
+// Health endpoint
 app.get("/api/health", (req, res) => {
-  res.json({
+  res.status(200).json({
     status: "OK",
     message: "StockFlow backend is healthy",
+  });
+});
+
+// Handle unexpected errors safely
+app.use((err, req, res, next) => {
+  console.error("Request error:", err.message);
+
+  if (err.message === "Origin not allowed by CORS") {
+    return res.status(403).json({
+      success: false,
+      message: "Origin not allowed",
+    });
+  }
+
+  return res.status(500).json({
+    success: false,
+    message: "Internal server error",
   });
 });
 
@@ -47,7 +85,7 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("Database connected successfully!");
 
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`StockFlow API running on port ${PORT}`);
     });
   } catch (error) {
